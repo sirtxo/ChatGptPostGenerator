@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTML5 Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .questions {
+            margin-top: 20px;
+        }
+        .question {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Questions App</h1>
+        <form id="questionForm">
+            <input type="text" id="questionInput" placeholder="Type your question here..." required>
+            <input type="submit" value="Submit">
+        </form>
+        <div class="questions" id="questions"></div>
+    </div>
+
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const questionInput = document.getElementById('questionInput');
+            const question = questionInput.value;
+
+            fetch('http://localhost:5000/api/questions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                questionInput.value = '';
+                loadQuestions();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function loadQuestions() {
+            fetch('http://localhost:5000/api/questions')
+                .then(response => response.json())
+                .then(data => {
+                    const questionsDiv = document.getElementById('questions');
+                    questionsDiv.innerHTML = '';
+                    data.forEach(question => {
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'question';
+                        questionDiv.innerText = question.question;
+                        questionsDiv.appendChild(questionDiv);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Load questions when the page loads
+        window.onload = loadQuestions;
+    </script>
+</body>
+</html>
