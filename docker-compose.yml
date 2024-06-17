@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=questiongenuine
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  tomcat:
+    image: tomcat:latest
+    container_name: tomcat
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./tomcat/webapps/ROOT:/usr/local/tomcat/webapps/ROOT
+
+  flask_api:
+    build: ./flask_app
+    container_name: flask_api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - mariadb
